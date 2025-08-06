@@ -1,0 +1,36 @@
+[gd_scene load_steps=6 format=3 uid="uid://cdpbkw6pn6tnx"]
+
+[ext_resource type="Script" uid="uid://bqduxncvt7iw0" path="res://controller/fps_camera.gd" id="1_d8b51"]
+[ext_resource type="Script" uid="uid://d1imrlyfn8cta" path="res://controller/fps_controller.gd" id="1_jodw4"]
+[ext_resource type="Script" uid="uid://c0x2tb1b2beio" path="res://utilities/fsm.gd" id="1_reqrf"]
+
+[sub_resource type="Curve" id="Curve_jodw4"]
+_data = [Vector2(0, 0), 0.0, 1.4, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_wfw5p"]
+radius = 0.3
+height = 1.6
+
+[node name="JamesFpsController" type="CharacterBody3D"]
+floor_constant_speed = true
+script = ExtResource("1_jodw4")
+acceleration_curve = SubResource("Curve_jodw4")
+deceleration_activation_angle = 45.0
+jog_min_speed = 3.0
+jog_max_speed = 5.0
+jog_acceleration = 30.0
+jog_deceleration = 50.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CapsuleShape3D_wfw5p")
+
+[node name="FPSCamera" type="Camera3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+script = ExtResource("1_d8b51")
+
+[node name="FPSStateMachine" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("1_reqrf")

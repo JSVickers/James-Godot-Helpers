@@ -1,0 +1,38 @@
+[gd_scene load_steps=6 format=3 uid="uid://bctd34mln31g5"]
+
+[ext_resource type="PackedScene" uid="uid://bq1e7yi8uo37t" path="res://test-level/terrain.tscn" id="1_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://cdpbkw6pn6tnx" path="res://controller/james_fps_controller.tscn" id="2_h2yge"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0xm2m"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_h2yge"]
+sky_material = SubResource("ProceduralSkyMaterial_0xm2m")
+
+[sub_resource type="Environment" id="Environment_1bvp3"]
+background_mode = 1
+background_color = Color(0.516375, 0.867725, 0.979488, 1)
+background_energy_multiplier = 0.8
+sky = SubResource("Sky_h2yge")
+tonemap_mode = 3
+fog_enabled = true
+fog_light_color = Color(0.517647, 0.866667, 0.980392, 1)
+fog_density = 0.0
+fog_height = -1.0
+fog_height_density = 0.6154
+volumetric_fog_density = 0.4385
+
+[node name="Main" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1bvp3")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+light_color = Color(0.862745, 1, 1, 1)
+shadow_enabled = true
+
+[node name="Terrain" parent="." instance=ExtResource("1_0xm2m")]
+
+[node name="JamesFpsController" parent="." instance=ExtResource("2_h2yge")]
