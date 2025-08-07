@@ -33,6 +33,8 @@ class JamState extends RefCounted:
 		pass
 	func exit():
 		pass
+	func input_event(_event: InputEvent):
+		pass
 
 func _on_event_triggered(event_id: int):
 	if transitions[current_state].has(event_id):
@@ -47,8 +49,6 @@ func _set_current_state(new_state: int):
 	state_entered.emit(current_state)
 
 func _ready() -> void:
-	if start_state == EMPTY_STATE:
-		return
 	event_triggered.connect(_on_event_triggered)
 	_set_current_state(start_state)
 
@@ -99,10 +99,10 @@ func add_transition(state_from: int, state_to: int, event: int):
 		print_debug('State ' + str(state_from) + ' already has a transition for event, overwriting.')
 	transitions[state_from][event] = state_to
 
-func tick(delta: float) -> void:		#Must be called from the parent node
+func tick(delta: float) -> void:
 	states[current_state].update(delta)
 
-func transition(new_state: int):		#Move to another state
+func transition(new_state: int):
 	if states[new_state] == null:
 		print_debug('State ' + str(new_state) + ' does not exist in state machine')
 		return
@@ -110,3 +110,6 @@ func transition(new_state: int):		#Move to another state
 
 func trigger_event(event_id: int):
 	event_triggered.emit(event_id)
+
+func pass_input_event(event: InputEvent):
+	states[current_state].input_event(event)

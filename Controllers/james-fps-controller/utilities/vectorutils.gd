@@ -31,4 +31,5 @@ static func calculate_velocity_change(current_velocity: Vector3, direction: Vect
 	if velocity_change.length() > velocity_change_limit:
 		velocity_change = velocity_change.normalized() * velocity_change_limit
 	
+	
 	return velocity_change
