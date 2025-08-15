@@ -1,9 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://cdpbkw6pn6tnx"]
+[gd_scene load_steps=5 format=3 uid="uid://47ho2w737128"]
 
-[ext_resource type="Script" uid="uid://bqduxncvt7iw0" path="res://controller/fps_camera.gd" id="1_d8b51"]
-[ext_resource type="Script" uid="uid://d1imrlyfn8cta" path="res://controller/fps_controller.gd" id="1_jodw4"]
+[ext_resource type="Script" uid="uid://blj8edpobtlrf" path="res://simple-fps-controller/simple_fps_controller.gd" id="1_4y12u"]
 
-[sub_resource type="Curve" id="Curve_jodw4"]
+[sub_resource type="Curve" id="Curve_reqrf"]
 _data = [Vector2(0, 0), 0.0, 1.4, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
 point_count = 2
 
@@ -15,26 +14,10 @@ height = 1.6
 radius = 0.3
 height = 1.0
 
-[node name="JamesFpsController" type="CharacterBody3D"]
+[node name="SimpleFpsController" type="CharacterBody3D"]
 floor_constant_speed = true
-script = ExtResource("1_jodw4")
-acceleration_curve = SubResource("Curve_jodw4")
-deceleration_activation_angle = 45.0
-coyote_time = 0.1
-jog_min_speed = 3.0
-jog_max_speed = 5.0
-jog_acceleration = 30.0
-jog_deceleration = 50.0
-sprint_min_speed = 5.0
-sprint_max_speed = 10.0
-sprint_acceleration = 50.0
-sprint_deceleration = 60.0
-jump_force = Vector3(0, 12, 0)
-air_acceleration = 10.0
-air_deceleration = 5.0
-fall_min_speed = 10.0
-fall_max_speed = 20.0
-gravitational_force = 70.0
+script = ExtResource("1_4y12u")
+acceleration_curve = SubResource("Curve_reqrf")
 
 [node name="StandingCollision" type="CollisionShape3D" parent="."]
 unique_name_in_owner = true
@@ -44,7 +27,6 @@ shape = SubResource("CapsuleShape3D_wfw5p")
 [node name="FPSCamera" type="Camera3D" parent="."]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
-script = ExtResource("1_d8b51")
 
 [node name="CrouchingCollision" type="CollisionShape3D" parent="."]
 unique_name_in_owner = true
@@ -65,3 +47,10 @@ unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0)
 enabled = false
 target_position = Vector3(0, 0.8, 0)
+
+[node name="CoyoteTimer" type="Timer" parent="."]
+unique_name_in_owner = true
+wait_time = 0.2
+one_shot = true
+
+[connection signal="timeout" from="CoyoteTimer" to="." method="_on_coyote_timer_timeout"]
