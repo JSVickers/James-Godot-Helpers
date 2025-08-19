@@ -6,6 +6,7 @@ extends CharacterBody3D
 
 const MAX_VERTICAL_ANGLE := PI/3.0
 const MOVEMENT_THRESHOLD := 0.1
+const CAM_TWEEN_TIME := 0.1
 
 enum InputButtons {
 	FORWARD,
@@ -92,7 +93,6 @@ func set_current_state(new_state: States):
 	match current_state:
 		States.CROUCH:
 			modify_collision(crouch_collision_shape, stand_collision_shape, stand_cam_target)
-			crouch_roof_cast.enabled = true
 	current_state = new_state
 	match current_state:
 		States.JOG: 
@@ -104,6 +104,7 @@ func set_current_state(new_state: States):
 		States.CROUCH:
 			start_movement(jog_min_speed * crouch_speed_modifier, jog_max_speed * crouch_speed_modifier, jog_acceleration * crouch_speed_modifier, jog_deceleration * crouch_speed_modifier)
 			modify_collision(stand_collision_shape, crouch_collision_shape, crouch_cam_target)
+			crouch_roof_cast.enabled = true
 			is_jump_enabled = false
 		States.AIR:
 			start_airborne(fall_min_speed, fall_max_speed, gravitational_force, air_handling)
@@ -161,7 +162,8 @@ func rotate_camera(x: float, y: float):
 func modify_collision(old_collision: CollisionShape3D, new_collision: CollisionShape3D, new_camera_marker: Marker3D):
 	old_collision.disabled = true
 	new_collision.disabled = false
-	camera.global_position = new_camera_marker.global_position
+	var cam_tween := create_tween().set_ease(Tween.EASE_OUT)
+	cam_tween.tween_property(camera, "position", new_camera_marker.position, CAM_TWEEN_TIME)
 
 func start_movement(min_speed: float, max_speed: float, accel: float, decel: float, new_jump_force: Vector3 = Vector3.ZERO):
 	current_min_speed = min_speed
