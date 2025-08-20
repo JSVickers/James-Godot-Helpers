@@ -10,10 +10,13 @@ enum Axis {
 	BACK
 }
 
+@export var movement_target: Node3D
+@export var rotation_target: Node3D
+
 @export_category("Time Settings")
 @export var path_time := 1.0
-@export var rotation_speed := 2.0
 @export var auto_start := false
+@export var start_backwards := false
 @export var loops := false
 @export var num_loops: int = 0
 
@@ -33,30 +36,32 @@ var AxisDict: Dictionary[Axis, Vector3] = {
 	Axis.BACK: Vector3.BACK
 }
 
-var moveable_node: AnimatableBody3D
-var start_rot: Vector3
-var end_rot: Vector3
+var start_basis: Basis
 var path_tween: Tween = null
 var current_progress := 0.0
 var current_loop: int = 0
 var current_direction := true
 var rotation_enabled := false
 var finish_movement := false
+var movement_enabled := false
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
-	moveable_node = get_parent()
-	if path != null:
-		moveable_node.global_position = path.global_position
+	current_progress = 0.0
+	if path != null and movement_target != null:
+		movement_enabled = true
+		movement_target.global_position = path.global_position
 		current_progress = path.progress_ratio
-	if !is_zero_approx(angle_1) or !is_zero_approx(angle_2):
-		start_rot = moveable_node.global_rotation
+	if rotation_target != null:
 		rotation_enabled = true
 		angle_1 = deg_to_rad(angle_1)
-		end_rot = moveable_node.transform.rotated(AxisDict[rotation_axis_1], angle_1).basis.get_euler()
+		angle_2 = deg_to_rad(angle_2)
+		start_basis = rotation_target.transform.basis
 	if auto_start:
-		start_movement(true)
+		if start_backwards:
+			current_progress = 1.0
+		start_movement(!start_backwards)
 
 func start_movement(direction: bool) -> void:
 	current_direction = direction
@@ -79,22 +84,25 @@ func end_movement() -> void:
 	path_tween.kill()
 	movement_ended.emit()
 
-func loop(loop_count: int) -> void:
+func loop(_loop_count: int) -> void:
+	finish_movement = true
 	if current_direction:
-		finish_movement = true
 		current_progress = 0.0
 		return
 	current_progress = 1.0
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	if Engine.is_editor_hint() or path_tween == null:
 		return
-	if path != null:
+	if movement_enabled:
 		path.progress_ratio = current_progress
-		moveable_node.global_position = path.global_position
+		movement_target.global_position = path.global_position
+		movement_target.orthonormalize()
 	if rotation_enabled:
-		moveable_node.rotate(AxisDict[rotation_axis_1], angle_1, )
-		moveable_node.rotation.y = wrapf(moveable_node.global_rotation.y + (rotation_speed * delta), -PI, PI)
+		var rotation_offset = start_basis.rotated(AxisDict[rotation_axis_1], angle_1 * current_progress).rotated(AxisDict[rotation_axis_2], angle_2 * current_progress).get_euler()
+		rotation_target.rotation = rotation_offset
+		rotation_target.orthonormalize()
 	if finish_movement:
-		moveable_node.rotation = end_rot
+		if movement_enabled: movement_target.reset_physics_interpolation()
+		if rotation_enabled: rotation_target.reset_physics_interpolation()
 		finish_movement = false
