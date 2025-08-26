@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://47ho2w737128"]
+[gd_scene load_steps=6 format=3 uid="uid://47ho2w737128"]
 
 [ext_resource type="Script" uid="uid://blj8edpobtlrf" path="res://simple-fps-controller/simple_fps_controller.gd" id="1_4y12u"]
+[ext_resource type="Script" uid="uid://rv7s4wcspb2k" path="res://simple-fps-controller/fps_camera.gd" id="2_5r7uw"]
 
 [sub_resource type="Curve" id="Curve_reqrf"]
 _data = [Vector2(0, 0), 0.0, 1.4, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
@@ -24,10 +25,6 @@ acceleration_curve = SubResource("Curve_reqrf")
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 shape = SubResource("CapsuleShape3D_wfw5p")
-
-[node name="FPSCamera" type="Camera3D" parent="."]
-unique_name_in_owner = true
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
 
 [node name="CrouchingCollision" type="CollisionShape3D" parent="."]
 unique_name_in_owner = true
@@ -53,5 +50,23 @@ target_position = Vector3(0, 0.8, 0)
 unique_name_in_owner = true
 wait_time = 0.2
 one_shot = true
+
+[node name="CamTarget" type="Marker3D" parent="."]
+unique_name_in_owner = true
+
+[node name="FPCameraPivot" type="Node3D" parent="." node_paths=PackedStringArray("target_node")]
+unique_name_in_owner = true
+physics_interpolation_mode = 2
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+top_level = true
+script = ExtResource("2_5r7uw")
+target_node = NodePath("../CamTarget")
+sensitivity = 0.005
+
+[node name="Camera" type="Camera3D" parent="FPCameraPivot"]
+physics_interpolation_mode = 2
+
+[node name="InteractionCast" type="RayCast3D" parent="FPCameraPivot"]
+target_position = Vector3(0, 0, -2)
 
 [connection signal="timeout" from="CoyoteTimer" to="." method="_on_coyote_timer_timeout"]

@@ -4,7 +4,8 @@
 class_name SimpleFPSController
 extends CharacterBody3D
 
-const MAX_VERTICAL_ANGLE := PI/3.0
+signal changed_state(state_id)
+
 const MOVEMENT_THRESHOLD := 0.1
 const CAM_TWEEN_TIME := 0.1
 
@@ -29,7 +30,6 @@ enum States {
 
 @export_category("Global Movement Settings")
 @export var start_state: States = States.JOG: set = set_current_state
-@export var camera_sensitivity := 0.0075
 @export var jump_force: Vector3 = Vector3(0.0, 12.0, 0.0)
 @export var acceleration_curve: Curve
 @export var deceleration_activation_angle: float = 45.0
@@ -70,12 +70,14 @@ enum States {
 
 @onready var stand_collision_shape: CollisionShape3D = %StandingCollision
 @onready var crouch_collision_shape: CollisionShape3D = %CrouchingCollision
-@onready var camera: Camera3D = %FPSCamera
 @onready var stand_cam_target: Marker3D = %StandCam
 @onready var crouch_cam_target: Marker3D = %CrouchCam
+@onready var cam_target: Marker3D = %CamTarget
 @onready var crouch_roof_cast: RayCast3D = %CrouchRoofCast
 @onready var coyote_timer: Timer = %CoyoteTimer
+@onready var camera: FPCameraPivot = %FPCameraPivot
 
+var previous_state := States.NONE
 var current_state := States.NONE: set = set_current_state
 var is_jump_enabled := false
 var current_min_speed := 0.0
@@ -93,6 +95,7 @@ func set_current_state(new_state: States):
 	match current_state:
 		States.CROUCH:
 			modify_collision(crouch_collision_shape, stand_collision_shape, stand_cam_target)
+	previous_state = current_state
 	current_state = new_state
 	match current_state:
 		States.JOG: 
@@ -109,24 +112,25 @@ func set_current_state(new_state: States):
 		States.AIR:
 			start_airborne(fall_min_speed, fall_max_speed, gravitational_force, air_handling)
 			coyote_timer.start()
+	changed_state.emit(new_state)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	elif event.is_action_pressed(InputDict[InputButtons.ESCAPE]):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		var mouse_motion: Vector2 = event.screen_relative * camera_sensitivity
-		rotate_camera(mouse_motion.y, mouse_motion.x)
 	if is_jump_enabled and event.is_action_pressed(InputDict[InputButtons.JUMP]):
 		jump()
 
 func _ready() -> void:
 	coyote_timer.wait_time = coyote_time
+	cam_target.position = stand_cam_target.position
 	set_current_state(start_state)
 
-func _physics_process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	check_inputs()
+
+func _physics_process(delta: float) -> void:
 	check_airborne_status()
 	change_velocity(delta)
 	move_and_slide()
@@ -154,16 +158,11 @@ func check_airborne_status():
 	elif is_on_floor() and current_state == States.AIR:
 		set_current_state(States.JOG)
 
-func rotate_camera(x: float, y: float):
-	camera.global_rotation.y = wrapf(camera.global_rotation.y - y, -PI, PI)
-	camera.global_rotation.x = clampf(camera.global_rotation.x - x, -1.0 * MAX_VERTICAL_ANGLE, MAX_VERTICAL_ANGLE)
-	camera.orthonormalize()
-
 func modify_collision(old_collision: CollisionShape3D, new_collision: CollisionShape3D, new_camera_marker: Marker3D):
 	old_collision.disabled = true
 	new_collision.disabled = false
 	var cam_tween := create_tween().set_ease(Tween.EASE_OUT)
-	cam_tween.tween_property(camera, "position", new_camera_marker.position, CAM_TWEEN_TIME)
+	cam_tween.tween_property(cam_target, "position", new_camera_marker.position, CAM_TWEEN_TIME)
 
 func start_movement(min_speed: float, max_speed: float, accel: float, decel: float, new_jump_force: Vector3 = Vector3.ZERO):
 	current_min_speed = min_speed

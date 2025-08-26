@@ -12,6 +12,7 @@ enum Axis {
 
 @export var movement_target: Node3D
 @export var rotation_target: Node3D
+@export var interactable_trigger: Interactor = null: set = set_interactable_trigger
 
 @export_category("Time Settings")
 @export var path_time := 1.0
@@ -19,6 +20,7 @@ enum Axis {
 @export var start_backwards := false
 @export var loops := false
 @export var num_loops: int = 0
+@export var delay_duraction: float = 0.0
 
 @export_category("Movement Path")
 @export var path: PathFollow3D = null
@@ -45,9 +47,20 @@ var rotation_enabled := false
 var finish_movement := false
 var movement_enabled := false
 
+func set_interactable_trigger(new_trigger: Interactor):
+	if interactable_trigger != null and interactable_trigger.state_changed.is_connected(trigger_movement):
+		interactable_trigger.state_changed.disconnect(trigger_movement)
+	interactable_trigger = new_trigger
+	if not is_inside_tree():
+		return
+	if interactable_trigger != null:
+		interactable_trigger.state_changed.connect(trigger_movement)
+		start_movement(interactable_trigger.is_active)
+
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
+	set_interactable_trigger(interactable_trigger)
 	current_progress = 0.0
 	if path != null and movement_target != null:
 		movement_enabled = true
@@ -63,7 +76,10 @@ func _ready() -> void:
 			current_progress = 1.0
 		start_movement(!start_backwards)
 
-func start_movement(direction: bool) -> void:
+func trigger_movement(_trigger_node: Node, direction: bool):
+	start_movement(direction)
+
+func start_movement(direction: bool = true) -> void:
 	current_direction = direction
 	if path_tween != null:
 		path_tween.kill()
@@ -76,9 +92,9 @@ func start_movement(direction: bool) -> void:
 		else:
 			path_tween.set_loops()
 	if direction:
-		path_tween.tween_property(self, "current_progress", 1.0, path_time * (1 - current_progress))
+		path_tween.tween_property(self, "current_progress", 1.0, path_time * (1 - current_progress)).set_delay(delay_duraction)
 		return
-	path_tween.tween_property(self, "current_progress", 0.0, path_time * current_progress)
+	path_tween.tween_property(self, "current_progress", 0.0, path_time * current_progress).set_delay(delay_duraction)
 
 func end_movement() -> void:
 	path_tween.kill()
