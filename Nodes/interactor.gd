@@ -10,11 +10,19 @@ signal state_changed(triggered_by: Node, new_status: bool)
 @export var mesh_instances: Array[MeshInstance3D]
 @export var is_active := false: set = set_is_active
 @export var is_highlighted := false: set = set_is_highlighted
+@export var is_highlightable := true: set = set_is_highlightable
 
 var highlight_tween: Tween
 var triggered_by: Node
 
+func set_is_highlightable(value: bool):
+	if not value:
+		set_is_highlighted(false)
+	is_highlightable = value
+
 func set_is_highlighted(highlighted: bool):
+	if not is_highlightable:
+		return
 	is_highlighted = highlighted
 	if highlight_mat == null or mesh_instances.is_empty():
 		return
