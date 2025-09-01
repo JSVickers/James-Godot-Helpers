@@ -2,18 +2,19 @@ class_name FPCameraPivot
 extends Node3D
 
 const MAX_VERTICAL_ANGLE := PI/3.0
-const CAM_SMOOTH_FRACTION := 0.6
+const MAX_HORIZONTAL_ANGLE := PI
 
 @export var target_node: Node3D
 @export var sensitivity := 0.003
 @export var follow_speed := 30.0
+@export_range(0.0, 1, 0.01) var camera_smoothing := 0.4
 
 @onready var camera: Camera3D = $Camera
 @onready var interaction_cast: RayCast3D = $InteractionCast
 
 var target_pos: Vector3 = Vector3()
 var mouse_motion: Vector2 = Vector2()
-var controller: SimpleFPSController
+var controller: Node
 var focused_node: Interactor
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -34,8 +35,8 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	var y_movement = mouse_motion.x
 	var x_movement = mouse_motion.y
-	var lerped_y_movement = lerp_angle(global_rotation.y, wrapf(global_rotation.y - y_movement, -PI, PI), CAM_SMOOTH_FRACTION)
-	var lerped_x_movement = lerp_angle(global_rotation.x, clampf(global_rotation.x - x_movement, -1.0 * MAX_VERTICAL_ANGLE, MAX_VERTICAL_ANGLE), CAM_SMOOTH_FRACTION)
+	var lerped_y_movement = lerp_angle(global_rotation.y, wrapf(global_rotation.y - y_movement, -1.0 * MAX_HORIZONTAL_ANGLE, MAX_HORIZONTAL_ANGLE), min((100 * (1.0 - camera_smoothing)) * delta), 1.0)
+	var lerped_x_movement = lerp_angle(global_rotation.x, clampf(global_rotation.x - x_movement, -1.0 * MAX_VERTICAL_ANGLE, MAX_VERTICAL_ANGLE), min((100 * (1.0 - camera_smoothing)) * delta), 1.0)
 	global_rotation.y = lerped_y_movement
 	global_rotation.x = lerped_x_movement
 	mouse_motion = Vector2()
