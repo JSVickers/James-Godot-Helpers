@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://bbjp8egbu4ayd"]
+
+[ext_resource type="Script" uid="uid://ccs1ui18ewtjh" path="res://interactable_2d.gd" id="1_ig7tw"]
+[ext_resource type="Texture2D" uid="uid://cmbhudd4mdty1" path="res://icon.svg" id="2_0xm2m"]
+
+[node name="Main" type="Node2D"]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+
+[node name="Interactable2D" type="Area2D" parent="."]
+script = ExtResource("1_ig7tw")
+metadata/_custom_type_script = "uid://ccs1ui18ewtjh"
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(640, 360)
+texture = ExtResource("2_0xm2m")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]

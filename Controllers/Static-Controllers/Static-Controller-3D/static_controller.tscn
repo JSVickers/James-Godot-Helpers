@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://c3oc0ol465x7v"]
+
+[ext_resource type="Script" uid="uid://rwlmruhuo2dr" path="res://static_controller.gd" id="1_2dpis"]
+[ext_resource type="Script" uid="uid://b5685e5l1capy" path="res://static_con_pivot.gd" id="1_dq13k"]
+
+[node name="StaticController" type="Node3D"]
+script = ExtResource("1_2dpis")
+
+[node name="StaticConPivot" type="Node3D" parent="."]
+unique_name_in_owner = true
+script = ExtResource("1_dq13k")
+
+[node name="MainCamera" type="Camera3D" parent="StaticConPivot"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.44563)
+fov = 30.0
+size = 2.0

@@ -1,0 +1,67 @@
+[gd_scene load_steps=6 format=3 uid="uid://cndyt4mvb7moc"]
+
+[ext_resource type="PackedScene" uid="uid://c3oc0ol465x7v" path="res://static_controller.tscn" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://dl8ruva0peprk" path="res://interactable.gd" id="2_h2yge"]
+[ext_resource type="Texture2D" uid="uid://82j6no0p0u2s" path="res://highlight.png" id="3_1bvp3"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_0xm2m"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_1bvp3"]
+radius = 0.661567
+
+[node name="Main" type="Node3D"]
+
+[node name="Node3D" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.862114, 0, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Node3D"]
+mesh = SubResource("BoxMesh_0xm2m")
+skeleton = NodePath("../..")
+
+[node name="Interactable" type="Area3D" parent="Node3D" node_paths=PackedStringArray("highlight_overlay")]
+monitoring = false
+script = ExtResource("2_h2yge")
+is_highlightable = true
+highlight_overlay = NodePath("../../CanvasLayer/HighlightOverlay")
+highlight_scale = Vector2(3.5, 3.5)
+texture = ExtResource("3_1bvp3")
+metadata/_custom_type_script = "uid://dl8ruva0peprk"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node3D/Interactable"]
+shape = SubResource("SphereShape3D_1bvp3")
+
+[node name="Node3D2" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.815896, 0, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Node3D2"]
+mesh = SubResource("BoxMesh_0xm2m")
+skeleton = NodePath("../..")
+
+[node name="Interactable" type="Area3D" parent="Node3D2" node_paths=PackedStringArray("highlight_overlay")]
+monitoring = false
+script = ExtResource("2_h2yge")
+is_highlightable = true
+highlight_overlay = NodePath("../../CanvasLayer/HighlightOverlay")
+highlight_scale = Vector2(3.5, 3.5)
+texture = ExtResource("3_1bvp3")
+metadata/_custom_type_script = "uid://dl8ruva0peprk"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node3D2/Interactable"]
+shape = SubResource("SphereShape3D_1bvp3")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.643429, 0.765506, 0, -0.765506, 0.643429, 0, 0, 1.4644)
+shadow_enabled = true
+
+[node name="StaticController" parent="." instance=ExtResource("1_ig7tw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HighlightOverlay" type="TextureRect" parent="CanvasLayer"]
+texture_filter = 1
+offset_right = 40.0
+offset_bottom = 40.0
+expand_mode = 1
+
+[editable path="StaticController"]

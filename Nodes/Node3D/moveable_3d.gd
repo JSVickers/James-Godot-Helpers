@@ -1,5 +1,5 @@
 @tool
-class_name PhysicsMover
+class_name Moveable3D
 extends Node
 
 signal movement_ended

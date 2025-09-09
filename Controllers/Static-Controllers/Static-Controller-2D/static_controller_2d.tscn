@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cbpmxfo3vlf77"]
+
+[ext_resource type="Script" uid="uid://cadrjriirx63b" path="res://static_controller_2d.gd" id="1_m0x25"]
+
+[node name="StaticController2D" type="Node2D"]
+script = ExtResource("1_m0x25")
